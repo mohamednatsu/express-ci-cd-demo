@@ -1,10 +1,10 @@
-name: CI/CD Pipeline
+name: Vercel CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
   test:
@@ -20,7 +20,7 @@ jobs:
     - name: Run tests
       run: npm test
 
-  build-and-deploy:
+  deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -30,13 +30,10 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 18
-    - name: Install dependencies
-      run: npm install
-    - name: Build Docker image
-      run: docker build -t my-express-app .
-    - name: Log in to Railway
-      uses: railwayapp/cli@v1.0.0
-      with:
-        token: ${{ secrets.RAILWAY_TOKEN }}
-    - name: Deploy to Railway
-      run: railway up --detach
+    - name: Install Vercel CLI
+      run: npm install -g vercel
+    - name: Deploy to Vercel
+      run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+      env:
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
